@@ -4,22 +4,27 @@ library(PerformanceAnalytics)
 ui <- fluidPage(
   titlePanel("Estimate above ground biomass (AGB) from lidar data"),
 
-  sidebarPanel(
-    h2("Open data file"),
-    fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
-              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-    checkboxInput("header", "Header", TRUE),
-    h2("Select variables for model"),
-    uiOutput("response"),
-    uiOutput("predictor"),
-    h2("Model"),
-    actionButton("lmbutton", "Linear model"), 
-    actionButton("rfbutton", "RF model")
-  ),
-  mainPanel(
-    h2("Model fit"),
-    plotOutput("model"),
-    verbatimTextOutput("summary")
+  fluidRow(
+    column(3,
+      h2("Open data file"),
+      fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+      checkboxInput("header", "Header", TRUE),
+      h2("Select variables for model"),
+      uiOutput("response"),
+      uiOutput("predictor"),
+      h2("Model"),
+      actionButton("lmbutton", "Linear model"), 
+      actionButton("rfbutton", "RF model")
+    ),
+    column(6,
+           h2("Model fit"),
+           plotOutput("model")
+           ),
+    column(3,
+           h2("Model summary"),
+           verbatimTextOutput("summary")
+           )
   )
 )
 
