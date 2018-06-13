@@ -6,23 +6,25 @@ ui <- fluidPage(
 
   fluidRow(
     column(3,
-      h2("Open data file"),
+      h3("Open data file"),
       fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
       checkboxInput("header", "Header", TRUE),
-      h2("Select variables for model"),
+      
+      h3("Select variables for model"),
       uiOutput("response"),
       uiOutput("predictor"),
-      h2("Model"),
+      
+      h3("Model"),
       actionButton("lmbutton", "Linear model"), 
       actionButton("rfbutton", "RF model")
     ),
     column(6,
-           h2("Model fit"),
+           h3("Model fit"),
            plotOutput("model")
            ),
     column(3,
-           h2("Model summary"),
+           h3("Model summary"),
            verbatimTextOutput("summary")
            )
   )
