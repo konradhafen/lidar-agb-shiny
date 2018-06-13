@@ -2,15 +2,25 @@ library(shiny)
 library(PerformanceAnalytics)
 
 ui <- fluidPage(
-  fileInput("csvfile", "Choose CSV file", buttonLabel = "Browse", placeholder = "No file selected",
-            accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-  checkboxInput("header", "Header", TRUE),
-  uiOutput("response"),
-  uiOutput("predictor"), 
-  actionButton("lmbutton", "Linear model"), 
-  actionButton("rfbutton", "RF model"),
-  plotOutput("model"),
-  verbatimTextOutput("summary")
+  titlePanel("Estimate above ground biomass (AGB) from lidar data"),
+
+  sidebarPanel(
+    h2("Open data file"),
+    fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
+              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+    checkboxInput("header", "Header", TRUE),
+    h2("Select variables for model"),
+    uiOutput("response"),
+    uiOutput("predictor"),
+    h2("Model"),
+    actionButton("lmbutton", "Linear model"), 
+    actionButton("rfbutton", "RF model")
+  ),
+  mainPanel(
+    h2("Model fit"),
+    plotOutput("model"),
+    verbatimTextOutput("summary")
+  )
 )
 
 server <- function(input, output) {
@@ -51,7 +61,7 @@ server <- function(input, output) {
     
     output$model <- renderPlot({
       plot(df[,input$predictor], df[,input$response], xlab=input$predictor, ylab=input$response,
-           main="Linear model fit")
+           main=NA)
       abline(lm1$coefficients[1], lm1$coefficients[2])
       })
     
