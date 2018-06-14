@@ -24,3 +24,9 @@ summary(lm1)
 library(randomForest)
 rf1 <- randomForest(AGB ~ Elev.mean + Elev.mode + Elev.stddev + Elev.CV + Elev.IQ + Elev.skewness + Elev.P75, data=subdat)
 varImpPlot(rf1)
+
+library(raster)
+
+rasdat <- brick("C:\\konrad\\Code\\R\\lidar-agb-shiny\\data\\Example_chm.asc")
+names(rasdat) <- "Elev.mean"
+raspred <- predict(rasdat, lm1, type="response")
