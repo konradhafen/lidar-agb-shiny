@@ -6,7 +6,7 @@ ui <- fluidPage(
 
   fluidRow(
     column(3,
-      h3("Variable selection"),
+      h3("Variable and Model selection"),
       fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
                 accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
       checkboxInput("header", "Header", TRUE),
