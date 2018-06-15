@@ -21,6 +21,17 @@ chart.Correlation(subdat)
 lm1 <- lm(AGB ~ Elev.mean, data=subdat)
 summary(lm1)
 
+nl1 <- nls(AGB ~ a * Elev.mean^b, 
+           data=subdat, 
+           start=list(a=0.1,b=1.01))
+
+summary(nl1)
+
+Elev.mean <- seq(0,round(max(subdat$Elev.mean, na.rm=T))+1,1)
+predagb <- predict(nl1, newdata=data.frame(Elev.mean=Elev.mean))
+plot(subdat$Elev.mean, subdat$AGB, xlab="Elev.mean", ylab="AGB")
+lines(Elev.mean, predagb)
+
 library(randomForest)
 rf1 <- randomForest(AGB ~ Elev.mean + Elev.mode + Elev.stddev + Elev.CV + Elev.IQ + Elev.skewness + Elev.P75, data=subdat)
 varImpPlot(rf1)
@@ -29,4 +40,4 @@ library(raster)
 
 rasdat <- brick("C:\\konrad\\Code\\R\\lidar-agb-shiny\\data\\Example_chm.asc")
 names(rasdat) <- "Elev.mean"
-raspred <- predict(rasdat, lm1, type="response")
+raspred <- predict(rasdat, nl1, type="response")

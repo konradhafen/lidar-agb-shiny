@@ -21,7 +21,7 @@ ui <- fluidPage(
       
       h3("Model"),
       actionButton("lmbutton", "Linear model"), 
-      actionButton("rfbutton", "RF model")
+      actionButton("nlbutton", "Non-linear model")
       
     ),
     column(9,
@@ -90,7 +90,9 @@ server <- function(input, output) {
     rasdat <- brick(rasfile$datapath)
     names(rasdat) <- input$predictor
     raspred <- lm1$coefficients[1][1] + rasdat * lm1$coefficients[2][1]
-    # print(names(raspred))
+    agbinfo <- list(mean=paste("Mean AGB (Mg/ha)", as.character(cellStats(raspred, 'mean'))),
+                    sum=paste("Total AGB (Mg)", 
+                              as.character(cellStats(raspred, 'sum')*xres(raspred)*yres(raspred)*0.0001)))
     
     output$model <- renderPlot({
       plot(df[,input$predictor], df[,input$response], xlab=input$predictor, ylab=input$response,
@@ -107,17 +109,47 @@ server <- function(input, output) {
     })
     
     output$predtext <- renderPrint({
-      lm1
+      agbinfo
     })
   })
   
-  observeEvent(input$rfbutton, {
+  observeEvent(input$nlbutton, {
+    df <- filedata()
+    if (is.null(df)) return(NULL)
+    mod.df <- data.frame(x=df[,input$predictor], y=df[,input$response])
+    nl1 <- nls(y ~ a * x^b,
+               data=mod.df,
+               start=list(a=0.1,b=1.01))
+    nl1sum <- summary(lm1)
+    rasfile <- input$rasfile
+    rasdat <- brick(rasfile$datapath)
+    names(rasdat) <- input$predictor
+    raspred <- coef(nl1)[1] * rasdat^coef(nl1)[2]
+    agbinfo <- list(mean=paste("Mean AGB (Mg/ha)", as.character(cellStats(raspred, 'mean'))),
+                    sum=paste("Total AGB (Mg)", 
+                              as.character(cellStats(raspred, 'sum')*xres(raspred)*yres(raspred)*0.0001)))
     
+    output$model <- renderPlot({
+      predictor.df <- data.frame(x=seq(0,round(max(mod.df$x, na.rm=T))+1,1))
+      predagb <- predict(nl1, newdata=predictor.df)
+      plot(mod.df$x, mod.df$y, xlab=input$predictor, ylab=input$response,
+           main=NA)
+      lines(predictor.df$x, predagb)
+    })
+    
+    output$summary <- renderPrint({
+      summary(nl1)
+    })
+    
+    output$map <- renderPlot({
+      plot(raspred)
+    })
+    
+    output$predtext <- renderPrint({
+      agbinfo
+    })
   })
   
-  observeEvent(input$predbutton, {
-    
-  })
 }
 
 shinyApp(ui = ui, server = server)
