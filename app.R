@@ -8,7 +8,7 @@ ui <- fluidPage(
     column(3,
       h3("Variable and Model selection"),
       fileInput("csvfile", "Choose a CSV file to begin", buttonLabel = "Browse", placeholder = "No file selected",
-                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
+                accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv", width=NULL)),
       checkboxInput("header", "Header", TRUE),
       
       h3("Select variables for model"),
@@ -16,8 +16,7 @@ ui <- fluidPage(
       uiOutput("predictor"),
       
       h3("Predict AGB"),
-      fileInput("rasfile", "Choose a raster file", buttonLabel = "Browse", placeholder = "No file selected"),
-      # actionButton("predbutton", "Predict"),
+      fileInput("rasfile", "Choose a raster file", buttonLabel = "Browse", placeholder = "No file selected", accept=NULL, width=NULL),
       
       h3("Model"),
       actionButton("lmbutton", "Linear model"), 
@@ -81,6 +80,7 @@ server <- function(input, output) {
   })
   
   observeEvent(input$lmbutton, {
+    print("linear model")
     df <- filedata()
     if (is.null(df)) return(NULL)
     lm1 <- lm(df[,input$response] ~ df[,input$predictor])
@@ -114,13 +114,14 @@ server <- function(input, output) {
   })
   
   observeEvent(input$nlbutton, {
+    print("nonlinear model")
     df <- filedata()
     if (is.null(df)) return(NULL)
     mod.df <- data.frame(x=df[,input$predictor], y=df[,input$response])
     nl1 <- nls(y ~ a * x^b,
                data=mod.df,
                start=list(a=0.1,b=1.01))
-    nl1sum <- summary(lm1)
+    nl1sum <- summary(nl1)
     rasfile <- input$rasfile
     rasdat <- brick(rasfile$datapath)
     names(rasdat) <- input$predictor
